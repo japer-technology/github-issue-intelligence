@@ -1,3 +1,3 @@
-# japer-technology/intelligent-template
+# japer-technology/template-issue-intelligence
 
-###  A Blank Repo, except for the Issue AI Intelligence
+###  A Blank Repo, oh except for the AI Intelligence living inside Issues!
