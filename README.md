@@ -8,4 +8,4 @@
   </picture>
 </p>
 
-> This file may be delete without consequence
+> This file may be deleted without consequence
