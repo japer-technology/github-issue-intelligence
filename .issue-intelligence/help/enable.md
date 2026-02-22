@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 Re-activate a previously disabled Issue Intelligence agent, or confirm that Issue Intelligence is currently enabled.

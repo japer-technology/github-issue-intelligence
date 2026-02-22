@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 GitHub Issues are your primary interface for interacting with the Issue Intelligence agent. Every issue becomes a persistent, multi-turn conversation with full memory and context.

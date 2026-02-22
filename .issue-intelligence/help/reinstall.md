@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 Reset or upgrade an existing Issue Intelligence installation. Use this when you want a fresh start, need to update to a newer version, or want to fix a broken installation.

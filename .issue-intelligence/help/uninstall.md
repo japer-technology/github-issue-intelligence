@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 Completely remove Issue Intelligence from your repository. This guide covers both full removal and partial cleanup options.

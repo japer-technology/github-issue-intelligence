@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 Temporarily stop the Issue Intelligence agent without removing any code, configuration, or conversation history. When you're ready to bring it back, see [Enable](enable.md).

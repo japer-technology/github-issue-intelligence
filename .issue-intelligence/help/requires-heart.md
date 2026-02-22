@@ -2,6 +2,12 @@
 
 [← Back to Help](README.md)
 
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/japer-technology/blank-with-issue-intelligence/main/.issue-intelligence/ISSUE-INTELLIGENCE-LOGO.png" alt="Issue Intelligence" width="400">
+  </picture>
+</p>
+
 ---
 
 Optionally require a ❤️ (heart) reaction on newly opened issues before the agent processes them. This gives repository owners a manual approval step — the agent won't respond to a new issue until someone explicitly hearts it.
