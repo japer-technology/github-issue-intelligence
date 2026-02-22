@@ -184,7 +184,7 @@ describe("Commit and push with retry", () => {
   });
 
   it("uses exponential back-off with jitter between retries", () => {
-    assert.ok(agent.includes("Math.pow(2, i)"), "Should use exponential back-off");
+    assert.ok(agent.includes("Math.pow(2, i - 1)"), "Should use exponential back-off");
     assert.ok(agent.includes("Math.random()"), "Should include random jitter");
     assert.ok(agent.includes("setTimeout"), "Should delay between retries");
   });

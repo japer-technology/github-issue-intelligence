@@ -352,10 +352,13 @@ try {
     if (push.exitCode === 0) break;
     console.log(`Push failed, rebasing and retrying (${i}/5)...`);
     await run(["git", "pull", "--rebase", "origin", defaultBranch]);
-    // Exponential back-off with jitter: ~1s, ~2s, ~4s, ~8s, ~16s (±50%)
-    const baseDelay = Math.pow(2, i) * 1000;
-    const jitter = baseDelay * (0.5 + Math.random());
-    await new Promise((resolve) => setTimeout(resolve, jitter));
+    // Exponential back-off with jitter: ~1s, ~2s, ~4s, ~8s (±50%).
+    // Skip the delay after the final attempt to avoid an unnecessary wait.
+    if (i < 5) {
+      const baseDelay = Math.pow(2, i - 1) * 1000;
+      const jitter = baseDelay * (0.5 + Math.random());
+      await new Promise((resolve) => setTimeout(resolve, jitter));
+    }
   }
 
   // ── Post reply as issue comment ──────────────────────────────────────────────
