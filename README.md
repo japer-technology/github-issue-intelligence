@@ -1,4 +1,4 @@
-# japer-technology/.issue-intelligence
+# japer-technology/.github-issue-intelligence
 
 ### Add a GitHub ANTHROPIC_API_KEY Secret and then Issues come alive!
 
