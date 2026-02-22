@@ -54,8 +54,18 @@
  * PUSH CONFLICT RESOLUTION
  * ─────────────────────────────────────────────────────────────────────────────
  * Multiple agents may race to push to the same branch.  To handle this gracefully
- * the script retries a failed `git push` up to 3 times, pulling with `--rebase`
- * between attempts.
+ * the script retries a failed `git push` up to 5 times, pulling with `--rebase`
+ * between attempts and waiting with exponential back-off plus random jitter to
+ * reduce contention.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * CONCURRENCY
+ * ─────────────────────────────────────────────────────────────────────────────
+ * The GitHub Actions workflow uses a `concurrency` group keyed by the issue
+ * number.  This serialises runs for the *same* issue (preventing session-state
+ * corruption) while allowing runs for *different* issues to proceed in parallel.
+ * The push-retry loop with back-off handles the resulting cross-issue push
+ * contention.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * GITHUB COMMENT SIZE LIMIT
@@ -322,6 +332,11 @@ try {
   // ── Commit and push state changes ───────────────────────────────────────────
   // Stage all changes (session log, mapping JSON, any files the agent edited),
   // commit only if the index is dirty, then push with a retry-on-conflict loop.
+
+  // Pull the latest changes first to minimise conflicts when multiple issues
+  // are being processed concurrently (each writes to its own session files).
+  await run(["git", "pull", "--rebase", "origin", defaultBranch]);
+
   await run(["git", "add", "-A"]);
   const { exitCode } = await run(["git", "diff", "--cached", "--quiet"]);
   if (exitCode !== 0) {
@@ -329,12 +344,21 @@ try {
     await run(["git", "commit", "-m", `issue-intelligence: work on issue #${issueNumber}`]);
   }
 
-  // Retry push up to 3 times, rebasing on each conflict to avoid force-pushing.
-  for (let i = 1; i <= 3; i++) {
+  // Retry push up to 5 times with exponential back-off and jitter.
+  // Multiple agents processing *different* issues may race to push to the same
+  // branch; extra retries and randomised delays reduce contention.
+  for (let i = 1; i <= 5; i++) {
     const push = await run(["git", "push", "origin", `HEAD:${defaultBranch}`]);
     if (push.exitCode === 0) break;
-    console.log(`Push failed, rebasing and retrying (${i}/3)...`);
+    console.log(`Push failed, rebasing and retrying (${i}/5)...`);
     await run(["git", "pull", "--rebase", "origin", defaultBranch]);
+    // Exponential back-off with jitter: ~1s, ~2s, ~4s, ~8s (±50%).
+    // Skip the delay after the final attempt to avoid an unnecessary wait.
+    if (i < 5) {
+      const baseDelay = Math.pow(2, i - 1) * 1000;
+      const jitter = baseDelay * (0.5 + Math.random());
+      await new Promise((resolve) => setTimeout(resolve, jitter));
+    }
   }
 
   // ── Post reply as issue comment ──────────────────────────────────────────────

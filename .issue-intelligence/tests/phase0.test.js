@@ -180,7 +180,24 @@ describe("Commit and push with retry", () => {
   });
 
   it("has a retry limit", () => {
-    assert.match(agent, /for\s*\(\s*let\s+i\s*=\s*1;\s*i\s*<=\s*3/);
+    assert.match(agent, /for\s*\(\s*let\s+i\s*=\s*1;\s*i\s*<=\s*5/);
+  });
+
+  it("uses exponential back-off with jitter between retries", () => {
+    assert.ok(agent.includes("Math.pow(2, i - 1)"), "Should use exponential back-off");
+    assert.ok(agent.includes("Math.random()"), "Should include random jitter");
+    assert.ok(agent.includes("setTimeout"), "Should delay between retries");
+  });
+
+  it("pulls latest before committing to reduce conflicts", () => {
+    // There should be a git pull --rebase BEFORE git add -A
+    const pullBeforeAdd = agent.indexOf('git", "pull", "--rebase"');
+    const gitAdd = agent.indexOf('"git", "add", "-A"');
+    assert.ok(pullBeforeAdd > 0 && gitAdd > 0);
+    assert.ok(
+      pullBeforeAdd < gitAdd,
+      "Should pull latest changes before staging to minimise conflicts"
+    );
   });
 });
 
@@ -414,6 +431,46 @@ describe("Error handling", () => {
     assert.ok(
       agent.includes("did not produce a text response"),
       "Agent should post an error message when response is empty"
+    );
+  });
+});
+
+// ── Concurrency handling for parallel issue processing ─────────────────────
+
+describe("Concurrency handling", () => {
+  const workflow = readFile(".github/workflows/ISSUE-INTELLIGENCE-WORKFLOW-AGENT.yml");
+  const template = readFile(".issue-intelligence/install/ISSUE-INTELLIGENCE-WORKFLOW-AGENT.yml");
+
+  it("workflow has concurrency group scoped to issue number", () => {
+    assert.ok(
+      workflow.includes("concurrency:"),
+      "Workflow must have a concurrency configuration"
+    );
+    assert.ok(
+      workflow.includes("github.event.issue.number"),
+      "Concurrency group must be scoped to the issue number"
+    );
+  });
+
+  it("workflow does not cancel in-progress runs", () => {
+    assert.ok(
+      workflow.includes("cancel-in-progress: false"),
+      "cancel-in-progress must be false to queue same-issue runs instead of cancelling them"
+    );
+  });
+
+  it("workflow template has matching concurrency configuration", () => {
+    assert.ok(
+      template.includes("concurrency:"),
+      "Template must have a concurrency configuration"
+    );
+    assert.ok(
+      template.includes("github.event.issue.number"),
+      "Template concurrency group must be scoped to the issue number"
+    );
+    assert.ok(
+      template.includes("cancel-in-progress: false"),
+      "Template cancel-in-progress must be false"
     );
   });
 });
