@@ -1,6 +1,6 @@
 # .issue-intelligence
 
-### Add a GitHub ANTHROPIC_API_KEY Secret and Spock lives
+### Add a GitHub ANTHROPIC_API_KEY Secret and then Issues come alive!
 
 <p align="center">
   <picture>
