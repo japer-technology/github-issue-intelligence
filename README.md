@@ -1,3 +1,3 @@
-# japer-technology/blank-with-issue-intelligence
+# japer-technology/github-issue-intelligence
 
-###  A Blank Repo, oh except for the AI Intelligence living inside Issues!
+###  A Blank Repo, oh except for the AI Intelligence living inside GitHub Issues
