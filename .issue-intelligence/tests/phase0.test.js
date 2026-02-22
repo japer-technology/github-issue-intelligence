@@ -362,7 +362,7 @@ describe("Error handling", () => {
 
   it("handles empty agent response", () => {
     assert.ok(
-      agent.includes("did not produce a response"),
+      agent.includes("did not produce a text response"),
       "Agent should post an error message when response is empty"
     );
   });

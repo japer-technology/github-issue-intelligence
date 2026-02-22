@@ -94,6 +94,6 @@ ensureAttribute(resolve(repoRoot, ".gitattributes"), "memory.log merge=union");
 console.log("\n✨ issue-intelligence installed!\n");
 console.log("Next steps:");
 console.log("  1. Add ANTHROPIC_API_KEY to Settings → Secrets and variables → Actions");
-console.log("  2. Run: cd .issue-intelligence/install && bun install");
+console.log("  2. Run: cd .issue-intelligence && bun install");
 console.log("  3. Commit and push the changes");
 console.log("  4. Open an issue to start chatting with the agent\n");
