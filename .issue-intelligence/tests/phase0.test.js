@@ -330,6 +330,56 @@ describe("Install templates", () => {
   });
 });
 
+// ── Requires-heart gate ────────────────────────────────────────────────────
+
+describe("Requires-heart gate", () => {
+  const guard = readFile(".issue-intelligence/lifecycle/ISSUE-INTELLIGENCE-ENABLED.ts");
+
+  it("guard script checks for requires-heart.* files", () => {
+    assert.ok(guard.includes("requires-heart"));
+    assert.ok(guard.includes("readdirSync"));
+  });
+
+  it("guard only applies heart check on issues event (not comments)", () => {
+    assert.ok(guard.includes('GITHUB_EVENT_NAME === "issues"'));
+  });
+
+  it("guard checks for heart reaction via gh API", () => {
+    assert.ok(guard.includes('"heart"'));
+    assert.ok(guard.includes("repos/${repo}/issues/${issueNumber}/reactions"));
+  });
+
+  it("guard exits non-zero when heart reaction is missing", () => {
+    assert.ok(guard.includes("process.exit(1)"));
+    assert.ok(guard.includes("requires-heart gate"));
+  });
+
+  it("workflow passes GITHUB_TOKEN to Guard step", () => {
+    const workflow = readFile(".github/workflows/ISSUE-INTELLIGENCE-WORKFLOW-AGENT.yml");
+    // Find the Guard step section and verify it has GITHUB_TOKEN
+    const guardSection = workflow.slice(
+      workflow.indexOf("name: Guard"),
+      workflow.indexOf("name: Preinstall")
+    );
+    assert.ok(
+      guardSection.includes("GITHUB_TOKEN"),
+      "Guard step must have GITHUB_TOKEN env for requires-heart API check"
+    );
+  });
+
+  it("workflow template also passes GITHUB_TOKEN to Guard step", () => {
+    const template = readFile(".issue-intelligence/install/ISSUE-INTELLIGENCE-WORKFLOW-AGENT.yml");
+    const guardSection = template.slice(
+      template.indexOf("name: Guard"),
+      template.indexOf("name: Preinstall")
+    );
+    assert.ok(
+      guardSection.includes("GITHUB_TOKEN"),
+      "Template Guard step must have GITHUB_TOKEN env for requires-heart API check"
+    );
+  });
+});
+
 // ── Error handling and observability ───────────────────────────────────────
 
 describe("Error handling", () => {

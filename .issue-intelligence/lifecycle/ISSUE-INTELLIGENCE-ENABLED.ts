@@ -45,7 +45,7 @@
  * third-party dependencies so it can run before `bun install`.
  */
 
-import { existsSync } from "fs";
+import { existsSync, readFileSync, readdirSync } from "fs";
 import { resolve } from "path";
 
 // ─── Resolve the absolute path to the sentinel file ───────────────────────────
@@ -65,5 +65,58 @@ if (!existsSync(enabledFile)) {
   process.exit(1);
 }
 
-// ─── Sentinel found: log confirmation and let the workflow continue ───────────
+// ─── Sentinel found: log confirmation and continue to further checks ─────────
 console.log("Issue Intelligence enabled — ISSUE-INTELLIGENCE-ENABLED.md found.");
+
+// ─── Requires-heart gate ──────────────────────────────────────────────────────
+// If any file matching `requires-heart.*` exists in the `.issue-intelligence/`
+// directory, newly opened issues must have a ❤️ (heart) reaction to be processed.
+// This allows repository owners to opt-in to a gating mechanism that requires
+// explicit approval (via heart reaction) before the agent processes an issue.
+//
+// The check only applies to `issues` events (newly opened issues); follow-up
+// comments (`issue_comment`) are always processed so that approved conversations
+// can continue uninterrupted.
+const issueIntelligenceDir = resolve(import.meta.dir, "..");
+const requiresHeartFiles = readdirSync(issueIntelligenceDir).filter(
+  (f: string) => /^requires-heart\..+$/.test(f)
+);
+
+if (requiresHeartFiles.length > 0 && process.env.GITHUB_EVENT_NAME === "issues") {
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (eventPath) {
+    const event = JSON.parse(readFileSync(eventPath, "utf-8"));
+    const repo = process.env.GITHUB_REPOSITORY!;
+    const issueNumber: number = event.issue.number;
+
+    // Use the `gh` CLI to query the issue's reactions for a heart emoji.
+    const proc = Bun.spawn(
+      [
+        "gh", "api",
+        `repos/${repo}/issues/${issueNumber}/reactions`,
+        "--jq", '[.[] | select(.content == "heart")] | length',
+      ],
+      { stdout: "pipe", stderr: "inherit" }
+    );
+    const output = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
+
+    if (exitCode !== 0) {
+      console.error(
+        "Requires-heart gate — failed to query reactions via gh API (exit code " +
+        `${exitCode}). Failing closed to prevent unreviewed issue processing.`
+      );
+      process.exit(1);
+    }
+
+    if (parseInt(output.trim(), 10) === 0) {
+      console.error(
+        `Issue #${issueNumber} skipped — requires-heart gate is active ` +
+        `(found ${requiresHeartFiles.join(", ")}) but no ❤️ reaction on the issue.\n` +
+        "Add a heart reaction to the issue and re-open or re-trigger the workflow."
+      );
+      process.exit(1);
+    }
+    console.log("Requires-heart gate passed — ❤️ reaction found.");
+  }
+}

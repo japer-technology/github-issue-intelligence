@@ -41,6 +41,8 @@ jobs:
           bun-version: latest
 
       - name: Guard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun .issue-intelligence/lifecycle/ISSUE-INTELLIGENCE-ENABLED.ts
 
       - name: Preinstall
